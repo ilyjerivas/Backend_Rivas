@@ -2,16 +2,11 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const fs = require('node:fs/promises');
 const fetch = require('node-fetch');
+const cors = require('cors');
 
 const app = express();
+app.use(cors()); // Enable CORS for all requests
 app.use(bodyParser.json());
-
-app.use((req, res, next) => {
-	res.setHeader('Access-Control-Allow-Origin', '*');
-	res.setHeader('Access-Control-Allow-Methods', 'GET,POST');
-	res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-	next();
-});
 
 // Home route to fix "Cannot GET /" issue
 app.get("/", (req, res) => {
