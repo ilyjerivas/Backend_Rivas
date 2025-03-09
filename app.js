@@ -13,6 +13,11 @@ app.use((req, res, next) => {
 	next();
 });
 
+// Home route to fix "Cannot GET /" issue
+app.get("/", (req, res) => {
+    res.send("Backend is running!");
+});
+
 // Choose storage mode based on environment
 const isLocal = process.env.NODE_ENV !== 'production';
 const JSONBIN_API_URL = "$2a$10$fcoE5NRKlO9lwjpQ2UIHAex9FvQOKGuqMEajWMpFcoQyAPfnlyTuC"; // Replace with your JSONBin ID
@@ -20,12 +25,10 @@ const JSONBIN_API_KEY = "$2a$10$0Rl4RdA0U9LZa8o3jI.wGuZRhysbknyvZDzIDLechjhhIRgC
 
 async function getStoredPosts() {
 	if (isLocal) {
-		// Local: Read from posts.json
 		const rawFileContent = await fs.readFile('posts.json', 'utf-8');
 		const data = JSON.parse(rawFileContent);
 		return data.posts ?? [];
 	} else {
-		// Production: Fetch from JSONBin
 		const response = await fetch(JSONBIN_API_URL, {
 			headers: { "X-Master-Key": JSONBIN_API_KEY }
 		});
@@ -36,10 +39,8 @@ async function getStoredPosts() {
 
 async function storePosts(posts) {
 	if (isLocal) {
-		// Local: Write to posts.json
 		return fs.writeFile('posts.json', JSON.stringify({ posts: posts || [] }));
 	} else {
-		// Production: Update JSONBin
 		return fetch(JSONBIN_API_URL, {
 			method: "PUT",
 			headers: {
@@ -66,4 +67,5 @@ app.post('/posts', async (req, res) => {
 	res.status(201).json({ message: 'Stored new post.', post: newPost });
 });
 
-app.listen(8080, () => console.log("Server running on port 8080"));
+const port = process.env.PORT || 8080;
+app.listen(port, () => console.log(`Server running on port ${port}`));
